@@ -190,21 +190,27 @@ def main():
     camPosX, camPosY, camPosZ= 0, 0, 0
     camRotZ, camRotX = 0, 0
 
-    ah, av, dist = glProject8(2, 0, 0)
-    print (ah, av, dist)
+    # ah, av, dist = glProject8(2, 0, 0)
+    # print (ah, av, dist)
 
-    ah, av, dist = glProject8(0, 2, 0)
-    print (ah, av, dist)
+    # ah, av, dist = glProject8(0, 2, 0)
+    # print (ah, av, dist)
 
-    ah, av, dist = glProject8(2, 2, 0)
-    print (ah, av, dist)
+    # ah, av, dist = glProject8(2, 2, 0)
+    # print (ah, av, dist)
 
-    ah, av, dist = glProject8(4, 4, 0)
-    print (ah, av, dist)
+    # ah, av, dist = glProject8(4, 4, 0)
+    # print (ah, av, dist)
 
-    ah, av, dist = glProject8(8, 8, 0)
-    print (ah, av, dist)
+    # ah, av, dist = glProject8(8, 8, 0)
+    # print (ah, av, dist)
 
+    ah, av, dist = glProject8(0, -1, 0)
+    print (ah, av, dist)
+    ah, av, dist = glProject8(0, 1, 0)
+    print (ah, av, dist)
+    ah, av, dist = glProject8(0, 0, 2)
+    print (ah, av, dist)
 
 
 

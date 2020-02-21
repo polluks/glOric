@@ -6,4 +6,6 @@
 #define NB_MAX_SEGMENTS 64
 #define NB_MAX_PARTICULES 64
 
+
+
 #endif  // GL_CONF_H
