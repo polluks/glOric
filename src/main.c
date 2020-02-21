@@ -7,7 +7,7 @@ char geomTriangle []= {
 /* Nb Coords = */ 3,
 /* Nb Faces = */ 1,
 /* Nb Segments = */ 3,
-/* Nb Particules = */ 0,
+/* Nb Particules = */ 3,
 // Coord List : X, Y, Z, unused
 -1, 0, 0, 0, 
  1, 0, 0, 0,
@@ -19,6 +19,9 @@ char geomTriangle []= {
 1, 2, '/', 0,
 0, 1, '-', 0,
 // Particule List : idxPoint1, character 
+0, '*',
+1, '*',
+2, '*'
 };
 
  // Camera Position
@@ -416,6 +419,28 @@ void glDrawFaces() {
     }
 }
 
+void glDrawParticules(){
+    unsigned char ii = 0;
+
+    unsigned char idxPt, offPt, dchar;
+    unsigned int  dist;
+    for (ii = 0; ii < nbParticules; ii++) {
+        idxPt    = particulesPt[ii];  // ii*SIZEOF_SEGMENT +0
+        ch2disp = particulesChar[ii];    // ii*SIZEOF_SEGMENT +2
+        printf ("particules : %d %d\n ", idxPt, ch2disp);
+        dchar = points2dL[idxPt]-2 ; //FIXME : -2 to helps particule to be displayed
+        P1X = (SCREEN_WIDTH -points2aH[idxPt]) >> 1;
+        P1Y = (SCREEN_HEIGHT - points2aV[idxPt]) >> 1;
+#ifdef USE_ZBUFFER
+        zplot(P1X, P1Y, dchar, ch2disp);
+#else
+        // TODO : plot a point with no z-buffer
+#endif
+
+    }
+}
+
+
 void main() {
 
     signed char ah, av;
@@ -492,8 +517,10 @@ void main() {
         printf ("%d %d %d => %d %d %d\n", points3dX[ii], points3dY[ii], points3dZ[ii], points2aH[ii], points2aV[ii], points2dL[ii]);
     }
     get ();
-    glDrawSegments();
     glDrawFaces();
+    glDrawSegments();
+    glDrawParticules();
+    get();
     buffer2screen((void*)ADR_BASE_LORES_SCREEN);
 
     // lprintf ("Hello World %d %d \n", 1, 2);
