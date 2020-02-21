@@ -1,11 +1,26 @@
 #ifndef GL_CONF_H
 #define GL_CONF_H
 
+
+#define SCREEN_WIDTH 40
+#define SCREEN_HEIGHT 26
+
+
 #define NB_MAX_COORDS 64
 #define NB_MAX_FACES 64
 #define NB_MAX_SEGMENTS 64
 #define NB_MAX_PARTICULES 64
 
+/*
+ *  SCREEN MEMORY
+ */
+#define ADR_BASE_LORES_SCREEN 48040  //BB80
 
+
+#define USE_ZBUFFER
+#define USE_C_INITFRAMEBUFFER
+#define USE_C_BUFFER2SCREEN
+#define USE_C_ZPLOT
+#define USE_C_ZLINE
 
 #endif  // GL_CONF_H

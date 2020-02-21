@@ -1,6 +1,7 @@
 #include "lib.h"
 
 #include "glConf.h"
+#include "util/util.h"
 
 char geomTriangle []= {
 /* Nb Coords = */ 3,
@@ -56,6 +57,33 @@ extern unsigned char facesPt2[];
 extern unsigned char facesPt3[];
 extern unsigned char facesChar[];
 
+extern signed char A1X;
+extern signed char A1Y;
+extern signed char A1destX;
+extern signed char A1destY;
+extern signed char A1dX;
+extern signed char A1dY;
+extern signed char A1err;
+extern signed char A1sX;
+extern signed char A1sY;
+extern char        A1arrived;
+
+extern signed char A2X;
+extern signed char A2Y;
+extern signed char A2destX;
+extern signed char A2destY;
+extern signed char A2dX;
+extern signed char A2dY;
+extern signed char A2err;
+extern signed char A2sX;
+extern signed char A2sY;
+extern char        A2arrived;
+
+extern unsigned char distface;
+extern unsigned char distseg;
+extern char          ch2disp;
+extern    signed char   P1X, P1Y, P2X, P2Y, P3X, P3Y;
+extern     signed char   P1AH, P1AV, P2AH, P2AV, P3AH, P3AV;
 
 #define SIZEOF_3DPOINT 4
 #define SIZEOF_SEGMENT 4
@@ -122,7 +150,106 @@ void glProjectArrays(){
 
     }
 }
+#define DOLLAR 36
 
+void lrDrawLine() {
+
+    signed char e2;
+    char        ch2dsp;
+
+    A1X     = P1X;
+    A1Y     = P1Y;
+    A1destX = P2X;
+    A1destY = P2Y;
+    A1dX    = abs(P2X - P1X);
+    A1dY    = -abs(P2Y - P1Y);
+    A1sX    = P1X < P2X ? 1 : -1;
+    A1sY    = P1Y < P2Y ? 1 : -1;
+    A1err   = A1dX + A1dY;
+
+    if ((A1err > 64) || (A1err < -63))
+        return;
+
+    if ((ch2disp == '/') && (A1sX == -1)) {
+        ch2dsp = DOLLAR;
+    } else {
+        ch2dsp = ch2disp;
+    }
+
+    while (1) {  // loop
+        //printf ("plot [%d, %d] %d %d\n", _A1X, _A1Y, distseg, ch2disp);get ();          
+#ifdef USE_ZBUFFER
+        zplot(A1X, A1Y, distseg, ch2dsp);
+#else
+        // TODO : plot a point with no z-buffer
+#endif
+        if ((A1X == A1destX) && (A1Y == A1destY))
+            break;
+        //e2 = 2*err;
+        e2 = (A1err < 0) ? (
+                ((A1err & 0x40) == 0) ? (
+                                                0x80)
+                                        : (
+                                            A1err << 1))
+            : (
+                ((A1err & 0x40) != 0) ? (
+                                                0x7F)
+                                        : (
+                                                A1err << 1));
+        if (e2 >= A1dY) {
+            A1err += A1dY;  // e_xy+e_x > 0
+            A1X += A1sX;
+        }
+        if (e2 <= A1dX) {  // e_xy+e_y < 0
+            A1err += A1dX;
+            A1Y += A1sY;
+        }
+    }
+}
+
+void glDrawSegments() {
+    unsigned char ii = 0;
+    unsigned char jj = 0;
+    unsigned char idxPt1, idxPt2;
+    unsigned char offPt1, offPt2;
+    int           dmoy;
+
+
+    for (ii = 0; ii < nbSegments; ii++) {
+
+        idxPt1    = segmentsPt1[ii];
+        idxPt2    = segmentsPt2[ii];
+        ch2disp = segmentsChar[ii];
+
+        // dmoy = (d1+d2)/2;
+
+        dmoy = points2dL[idxPt1];
+        dmoy += points2dL[idxPt2];
+        dmoy = dmoy >> 1;
+        
+
+        //if (dmoy >= 256) {
+        if ((dmoy & 0xFF00) != 0)
+            continue;
+        distseg = (unsigned char)((dmoy)&0x00FF);
+        distseg--;  // FIXME
+
+        P1AH = points2aH[idxPt1];
+        P1AV = points2aV[idxPt1];
+
+        P2AH = points2aH[idxPt2];
+        P2AV = points2aV[idxPt2];
+
+        P1X = (SCREEN_WIDTH - P1AH) >> 1;
+        P1Y = (SCREEN_HEIGHT - P1AV) >> 1;
+        P2X = (SCREEN_WIDTH - P2AH) >> 1;
+        P2Y = (SCREEN_HEIGHT - P2AV) >> 1;
+
+        // printf ("dl ([%d, %d] , [%d, %d] => %d c=%d\n", P1X, P1Y, P2X, P2Y, distseg, char2disp); get();
+        lrDrawLine();
+
+    }
+}
 
 void main() {
 
@@ -190,7 +317,8 @@ void main() {
         printf ("%d %d %d => %d %d %d\n", points3dX[ii], points3dY[ii], points3dZ[ii], points2aH[ii], points2aV[ii], points2dL[ii]);
     }
 */
-    addGeom(0, 0, 0, // X, Y,Z,
+    initScreenBuffers();
+    addGeom(3, 0, 0, // X, Y,Z,
     1, 1, 1, //sizeX,sizeY,sizeZ,
     1, //orientation
     geomTriangle);
@@ -198,5 +326,7 @@ void main() {
     for (ii=0; ii < nbCoords; ii++) {
         printf ("%d %d %d => %d %d %d\n", points3dX[ii], points3dY[ii], points3dZ[ii], points2aH[ii], points2aV[ii], points2dL[ii]);
     }
-
+    get ();
+    glDrawSegments();
+    buffer2screen((void*)ADR_BASE_LORES_SCREEN);
 }

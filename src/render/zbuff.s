@@ -1,4 +1,4 @@
-#include "config.h"
+#include "glConf.h"
 
 #ifdef USE_MULTI40
 _multi40
@@ -31,7 +31,7 @@ _multi40
 	.word 1040
 #endif // USE_MULTI40
 
-
+#ifdef USE_ZBUFFER
 ; This table contains lower 8 bits of the adress
 ZBufferAdressLow
 	.byt <(_zbuffer+40*0)
@@ -158,7 +158,7 @@ FBufferAdressHigh
 	.byt >(_fbuffer+40*27)
 
 
-
+#ifdef USE_ZBUFFER
 
 
 #ifdef USE_ASM_BUFFER2SCREEN

@@ -1,4 +1,4 @@
-#include "config.h"
+#include "glConf.h"
 #include "glOric.h"
 
 #ifdef TARGET_ORIX

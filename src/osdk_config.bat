@@ -11,7 +11,8 @@ REM SET OSDKLINK=-B
 SET OSDKFILE=main
 SET OSDKFILE=%OSDKFILE% gl8 
 SET OSDKFILE=%OSDKFILE% glProject8 
-REM SET OSDKFILE=%OSDKFILE% glArrays 
+SET OSDKFILE=%OSDKFILE% render/zbuff zbuffer 
+SET OSDKFILE=%OSDKFILE% raster/fill8 
 
 :: List of files to put in the DSK file.
 :: Implicitely includes BUILD/%OSDKNAME%.TAP
