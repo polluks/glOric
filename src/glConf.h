@@ -22,5 +22,6 @@
 #define USE_C_BUFFER2SCREEN
 #define USE_C_ZPLOT
 #define USE_C_ZLINE
+#define USE_C_BRESFILL
 
 #endif  // GL_CONF_H
