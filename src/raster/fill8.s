@@ -38,6 +38,9 @@ _mDeltaX1 .dsb 1
 _mDeltaY2 .dsb 1
 _mDeltaX2 .dsb 1
 
+_A1XSatur .dsb 1
+_A2XSatur .dsb 1
+
 .text
 
 
@@ -1442,3 +1445,6 @@ fill8_done:
 
 	rts
 #endif USE_ASM_FILL8
+
+
+

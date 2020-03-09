@@ -51,72 +51,124 @@ _hzfill:
 	; bmi hzfill_A2xOverOrEqualA1x
 	lda _A1Right ; (A1X > A2X)
 	beq hzfill_A2xOverOrEqualA1x
-#ifdef USE_COLOR
-//		dx = max(2, A2X);
-		lda _A2X
-		sec
-		sbc #COLUMN_OF_COLOR_ATTRIBUTE
-		bvc *+4
-		eor #$80
-		bmi hzfill_A2xLowerThan3
-		lda _A2X
-		jmp hzfill_A2xPositiv
-hzfill_A2xLowerThan3:
+
+		lda _A2XSatur
+		beq hzfill_A2XDontSatur_01 
+#ifdef USE_COLOR		
 		lda #COLUMN_OF_COLOR_ATTRIBUTE
 #else
-//      dx = max(0, A2X);
-		lda _A2X
-		bpl hzfill_A2xPositiv
 		lda #0
 #endif
+		jmp hzfill_A2xPositiv
+hzfill_A2XDontSatur_01:
+		lda _A2X		
+;; #ifdef USE_COLOR
+;; //		dx = max(2, A2X);
+;; 		lda _A2X
+;; 		sec
+;; 		sbc #COLUMN_OF_COLOR_ATTRIBUTE
+;; 		bvc *+4
+;; 		eor #$80
+;; 		bmi hzfill_A2xLowerThan3
+;; 		lda _A2X
+;; 		jmp hzfill_A2xPositiv
+;; hzfill_A2xLowerThan3:
+;; 		lda #COLUMN_OF_COLOR_ATTRIBUTE
+;; #else
+;; //      dx = max(0, A2X);
+;; 		lda _A2X
+;; 		bpl hzfill_A2xPositiv
+;; 		lda #0
+;; #endif
+
 hzfill_A2xPositiv:
 		sta departX ; dx
+
+		lda _A1XSatur
+		beq hzfill_A1XDontSatur
+			lda #SCREEN_WIDTH - 1
+			sta finX
+			jmp hzfill_computeNbPoints
+hzfill_A1XDontSatur:
+			lda _A1X
+			sta finX
+			jmp hzfill_computeNbPoints
+
 //         fx = min(A1X, SCREEN_WIDTH - 1);
-		lda _A1X
-		sta finX
-		sec
-		sbc #SCREEN_WIDTH - 1
-		bvc *+4
-		eor #$80
-		bmi hzfill_A1xOverScreenWidth
-		lda #SCREEN_WIDTH - 1
-		sta finX
-hzfill_A1xOverScreenWidth:
-		jmp hzfill_computeNbPoints
+;; 		lda _A1X
+;; 		sta finX
+;; 		sec
+;; 		sbc #SCREEN_WIDTH - 1
+;; 		bvc *+4
+;; 		eor #$80
+;; 		bmi hzfill_A1xOverScreenWidth
+;; 		lda #SCREEN_WIDTH - 1
+;; 		sta finX
+;; hzfill_A1xOverScreenWidth:
+;; 		jmp hzfill_computeNbPoints
+
 hzfill_A2xOverOrEqualA1x:
+
 //     } else {
-#ifdef USE_COLOR
-//		dx = max(2, A1X);
-		lda _A1X
-		sec
-		sbc #COLUMN_OF_COLOR_ATTRIBUTE
-		bvc *+4
-		eor #$80
-		bmi hzfill_A1xLowerThan3
-		lda _A1X
-		jmp hzfill_A1xPositiv
-hzfill_A1xLowerThan3:
+
+		lda _A1XSatur
+		beq hzfill_A1XDontSatur_02
+#ifdef USE_COLOR		
 		lda #COLUMN_OF_COLOR_ATTRIBUTE
 #else
-//      dx = max(0, A1X);
-		lda _A1X
-		bpl hzfill_A1xPositiv
 		lda #0
 #endif
+		jmp hzfill_A1xPositiv
+hzfill_A1XDontSatur_02:
+		lda _A1X
+
+;; #ifdef USE_COLOR
+;; //		dx = max(2, A1X);
+;; 		lda _A1X
+;; 		sec
+;; 		sbc #COLUMN_OF_COLOR_ATTRIBUTE
+;; 		bvc *+4
+;; 		eor #$80
+;; 		bmi hzfill_A1xLowerThan3
+;; 		lda _A1X
+;; 		jmp hzfill_A1xPositiv
+;; hzfill_A1xLowerThan3:
+;; 		lda #COLUMN_OF_COLOR_ATTRIBUTE
+;; #else
+;; //      dx = max(0, A1X);
+;; 		lda _A1X
+;; 		bpl hzfill_A1xPositiv
+;; 		lda #0
+;; #endif
 hzfill_A1xPositiv:
 		sta departX
-//         fx = min(A2X, SCREEN_WIDTH - 1);
-		lda _A2X ; p2x
-		sta finX
-		sec
-		sbc #SCREEN_WIDTH - 1
-		bvc *+4
-		eor $80
-		bmi hzfill_A2xOverScreenWidth
+
+
+
+;; //         fx = min(A2X, SCREEN_WIDTH - 1);
+;; 		lda _A2X ; p2x
+;; 		sta finX
+;; 		sec
+;; 		sbc #SCREEN_WIDTH - 1
+;; 		bvc *+4
+;; 		eor $80
+;; 		bmi hzfill_A2xOverScreenWidth
+;; 		lda #SCREEN_WIDTH - 1
+;; 		sta finX
+;; hzfill_A2xOverScreenWidth:
+;; //     }
+
+		lda _A2XSatur
+		beq hzfill_A2XDontSatur_02		
 		lda #SCREEN_WIDTH - 1
 		sta finX
-hzfill_A2xOverScreenWidth:
-//     }
+		jmp hzfill_computeNbPoints
+hzfill_A2XDontSatur_02:
+		lda _A2X	
+		sta finX	
+
+
+
 hzfill_computeNbPoints:
 //     nbpoints = fx - dx;
 //     if (nbpoints < 0) return;
