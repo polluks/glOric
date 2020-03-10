@@ -969,6 +969,8 @@ fill8_DepYDiffArr1Y:
 		sta _A1sX
     	lda #OPCODE_DEC_ZERO
     	sta _patch_A1stepY_incdec_A1X
+		sta _patch_A1stepY_A1Right_incdec_A1X
+		sta _patch_A1stepY_A1Left_incdec_A1X
 		jmp fill8_computeDy_01
 	fill8_01_negativ_02:
 		eor #$FF
@@ -979,6 +981,8 @@ fill8_DepYDiffArr1Y:
 		sta _A1sX
     	lda #OPCODE_INC_ZERO
     	sta _patch_A1stepY_incdec_A1X
+		sta _patch_A1stepY_A1Right_incdec_A1X
+		sta _patch_A1stepY_A1Left_incdec_A1X
 
 
 fill8_computeDy_01:		
@@ -1066,6 +1070,8 @@ fill8_computeA2:
 		sta _A2sX
 		lda #OPCODE_DEC_ZERO
 		sta patch_A2stepY_incdec_A2X
+		sta _patch_A2stepY_A1Right_incdec_A2X
+		sta _patch_A2stepY_A1Left_incdec_A2X
 		jmp fill8_computeDy_02
 	fill8_03_negativ_02:
 		eor #$FF
@@ -1076,6 +1082,8 @@ fill8_computeA2:
 		sta _A2sX
 		lda #OPCODE_INC_ZERO
 		sta patch_A2stepY_incdec_A2X
+		sta _patch_A2stepY_A1Right_incdec_A2X
+		sta _patch_A2stepY_A1Left_incdec_A2X
 
 fill8_computeDy_02:
     //     A2dY    = -abs(A2destY - A2Y);
@@ -1168,6 +1176,8 @@ fill8_brestep1:
 		sta _A1sX
     	lda #OPCODE_DEC_ZERO
     	sta _patch_A1stepY_incdec_A1X
+		sta _patch_A1stepY_A1Right_incdec_A1X
+		sta _patch_A1stepY_A1Left_incdec_A1X
 		jmp fill8_computeDy_03
 	fill8_05_negativ_02:
 		eor #$FF
@@ -1178,6 +1188,8 @@ fill8_brestep1:
 		sta _A1sX
     	lda #OPCODE_INC_ZERO
     	sta _patch_A1stepY_incdec_A1X
+		sta _patch_A1stepY_A1Right_incdec_A1X
+		sta _patch_A1stepY_A1Left_incdec_A1X
 .)
 
 fill8_computeDy_03:		
@@ -1259,6 +1271,8 @@ fill8_DepYEqualsArr1Y:
 		sta _A1sX
     	lda #OPCODE_DEC_ZERO
     	sta _patch_A1stepY_incdec_A1X
+		sta _patch_A1stepY_A1Right_incdec_A1X
+		sta _patch_A1stepY_A1Left_incdec_A1X
 		jmp fill8_computeDy_04
 	fill8_07_negativ_02:
 		eor #$FF
@@ -1269,6 +1283,8 @@ fill8_DepYEqualsArr1Y:
 		sta _A1sX
     	lda #OPCODE_INC_ZERO
     	sta _patch_A1stepY_incdec_A1X
+		sta _patch_A1stepY_A1Right_incdec_A1X
+		sta _patch_A1stepY_A1Left_incdec_A1X
 .)
 fill8_computeDy_04:
     //     A1dY    = -abs(A1destY - A1Y);
@@ -1358,6 +1374,8 @@ fill8_computeA2_ter:
 		sta _A2sX
 		lda #OPCODE_DEC_ZERO
 		sta patch_A2stepY_incdec_A2X
+		sta _patch_A2stepY_A1Right_incdec_A2X
+		sta _patch_A2stepY_A1Left_incdec_A2X
 		jmp fill8_computeDy_08
 	fill8_09_negativ_02:
 		eor #$FF
@@ -1368,6 +1386,8 @@ fill8_computeA2_ter:
 		sta _A2sX
 		lda #OPCODE_INC_ZERO
 		sta patch_A2stepY_incdec_A2X
+		sta _patch_A2stepY_A1Right_incdec_A2X
+		sta _patch_A2stepY_A1Left_incdec_A2X
 
 fill8_computeDy_08:
     //     A2dY    = -abs(A2destY - A2Y);

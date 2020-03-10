@@ -15,7 +15,7 @@
 ;;
 ;;**************************
 _A1stepY_A1Right:
-.(
+
 	// save context
     pha
 	lda reg0: pha: lda reg1 : pha 
@@ -78,12 +78,13 @@ A1stepY_A1Right_doloop:
 A1stepY_A1Right_debug_moi_la:			
 			sta _A1err
 		;; 	A1X += A1sX;
-// OPTIM _patch_A1stepY_A1Right_incdec_A1X
-// OPTIM 			inc _A1X 
-			clc
-			lda _A1X
-			adc _A1sX
-			sta _A1X
+// OPTIM TO TEST
+_patch_A1stepY_A1Right_incdec_A1X:
+ 			inc _A1X : lda _A1X
+			; clc
+			; lda _A1X
+			; adc _A1sX
+			; sta _A1X
 
             ;; TOTEST if (A1X == SCREEN_WIDTH - 1){
             cmp #SCREEN_WIDTH-1
@@ -155,7 +156,7 @@ A1stepY_A1Rightdone:
 	pla: sta reg1: pla: sta reg0
 	pla
 
-.)
+
 	rts
 
 ;;**************************
@@ -163,7 +164,7 @@ A1stepY_A1Rightdone:
 ;;**************************
 
 _A1stepY_A1Left:
-.(
+
 	// save context
     pha
 	lda reg0: pha: lda reg1 : pha 
@@ -226,12 +227,14 @@ A1stepY_A1Left_doloop:
 A1stepY_A1Left_debug_moi_la:			
 			sta _A1err
 		;; 	A1X += A1sX;
-// OPTIM _patch_A1stepY_A1Left_incdec_A1X
-// OPTIM 			inc _A1X 
-			clc
-			lda _A1X
-			adc _A1sX
-			sta _A1X
+// OPTIM 
+_patch_A1stepY_A1Left_incdec_A1X:
+// OPTIM
+ 			inc _A1X : lda _A1X
+			; clc
+			; lda _A1X
+			; adc _A1sX
+			; sta _A1X
 
 // TOTEST: 
 #ifdef USE_COLOR
@@ -310,7 +313,7 @@ A1stepY_A1Leftdone:
 	pla: sta reg1: pla: sta reg0
 	pla
 
-.)
+
 	rts
 
 ;;**************************
@@ -318,7 +321,7 @@ A1stepY_A1Leftdone:
 ;;**************************
 
 _A2stepY_A1Right:
-.(
+
 	// save context
     pha
 	lda reg0: pha: lda reg1 : pha 
@@ -378,12 +381,14 @@ A2stepY_A1Right_doloop:
 			adc _A2dY
 			sta _A2err
 		;; 	A2X += A2sX;
-//OPTIM : patch_A2stepY_A1Right_incdec_A2X:
-//OPTIM : 			inc _A2X
-			clc
-			lda _A2X
-			adc _A2sX
-			sta _A2X
+//OPTIM : 
+_patch_A2stepY_A1Right_incdec_A2X:
+//OPTIM :
+ 			inc _A2X : lda _A2X
+			; clc
+			; lda _A2X
+			; adc _A2sX
+			; sta _A2X
 // TOTEST
 #ifdef USE_COLOR
         ;;    if (A2X == COLUMN_OF_COLOR_ATTRIBUTE){
@@ -460,7 +465,7 @@ A2stepY_A1Rightdone:
 	pla: sta reg1: pla: sta reg0
 	pla
 
-.)
+
 	rts
 
 ;;**************************
@@ -468,7 +473,7 @@ A2stepY_A1Rightdone:
 ;;**************************
 
 _A2stepY_A1Left:
-.(
+
 	// save context
     pha
 	lda reg0: pha: lda reg1 : pha 
@@ -528,12 +533,14 @@ A2stepY_A1Left_doloop:
 			adc _A2dY
 			sta _A2err
 		;; 	A2X += A2sX;
-//OPTIM : patch_A2stepY_A1Left_incdec_A2X:
-//OPTIM : 			inc _A2X
-			clc
-			lda _A2X
-			adc _A2sX
-			sta _A2X
+//OPTIM : 
+_patch_A2stepY_A1Left_incdec_A2X:
+//OPTIM : 			
+			inc _A2X : lda _A2X
+			; clc
+			; lda _A2X
+			; adc _A2sX
+			; sta _A2X
 
         ;; TOTEST:   if (A2X == SCREEN_WIDTH - 1){
             cmp #SCREEN_WIDTH-1
@@ -605,7 +612,7 @@ A2stepY_A1Leftdone:
 	pla: sta reg1: pla: sta reg0
 	pla
 
-.)
+
 	rts
 
 #endif //  USE_ASM_BRESFILL
