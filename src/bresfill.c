@@ -344,7 +344,7 @@ void fillFace() {
     angle2screen();
 
     // printf ("P1A: [%d, %d], P2A: [%d, %d], P3A [%d, %d]\n", P1AH, P1AV, P2AH, P2AV, P3AH, P3AV);
-    // printf ("P1:[%d, %d], P2:[%d, %d], P3[%d, %d]\n", P1X, P1Y, P2X, P2Y, P3X, P3Y);get();
+    // printf ("P1:[%d, %d],P2:[%d, %d],P3[%d, %d],ch=%d\n", P1X, P1Y, P2X, P2Y, P3X, P3Y, ch2disp);get();
     // printf ("distface = %d char = %d\n",distface, ch2disp);
     // get();
 
@@ -435,16 +435,35 @@ void reachScreen (){
 void initSatur_A1Right() {
     if (A1X > SCREEN_WIDTH - 1) {
         A1XSatur = 1;
+    } else if (A1X == SCREEN_WIDTH - 1) {
+        if (A1sX == 1) {
+            A1XSatur = 1;
+        } else {
+            A1XSatur = 0;
+        }
     } else {
         A1XSatur = 0;
     }
 
-#ifdef USE_COLOR
+#ifndef USE_COLOR
     if (A2X < 0) {
 #else
     if (A2X < COLUMN_OF_COLOR_ATTRIBUTE) {
 #endif             
         A2XSatur = 1;
+    } 
+#ifndef USE_COLOR
+    else if (A2X == 0) {
+        
+#else
+    else if (A2X == COLUMN_OF_COLOR_ATTRIBUTE) {
+#endif
+        if (A2sX == 1) {
+            A2XSatur = 0;
+        } else {
+            A2XSatur = 1;
+        }
+
     } else {
         A2XSatur = 0;
     }
@@ -453,16 +472,32 @@ void initSatur_A1Right() {
 void initSatur_A1Left() {
     if (A2X > SCREEN_WIDTH - 1) {
         A2XSatur = 1;
+    } else if (A2X == SCREEN_WIDTH - 1) {
+        if (A2sX == 1){
+            A2XSatur = 1;
+        } else {
+            A2XSatur = 0;
+        }
     } else {
         A2XSatur = 0;
     }
 
-#ifdef USE_COLOR
+#ifndef USE_COLOR
     if (A1X < 0) {
 #else
     if (A1X < COLUMN_OF_COLOR_ATTRIBUTE) {
 #endif             
         A1XSatur = 1;
+#ifndef USE_COLOR
+    } else if (A1X == 0) {
+#else
+    } else if (A1X == COLUMN_OF_COLOR_ATTRIBUTE) {
+#endif             
+        if (A1sX == 1){
+            A1XSatur = 0;
+        } else {
+            A1XSatur = 1;
+        }
     } else {
         A1XSatur = 0;
     }
@@ -477,56 +512,58 @@ void bresStepType1() {
     
     if (A1Right == 0) {
         initSatur_A1Left ();
+        // printf ("bt1 A1L (%d: %d, %d) = A1XSatur=%d A2XSatur=%d\n", A1X, A2X, A1Y, A1XSatur, A2XSatur); get();
         hzfill();
         while ((A1arrived == 0) && (A1Y > 1)){
             A1stepY_A1Left();
             A2stepY_A1Left();
             // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
             // A1Right = (A1X > A2X); 
+            // printf ("bt1 A1L (%d: %d, %d) = A1XSatur=%d A2XSatur=%d\n", A1X, A2X, A1Y, A1XSatur, A2XSatur); get();
             hzfill();
         }
     } else {
         initSatur_A1Right ();
+        // printf ("bt1 A1R (%d: %d, %d) = A1XSatur=%d A2XSatur=%d\n", A1X, A2X, A1Y, A1XSatur, A2XSatur); get();
         hzfill();
         while ((A1arrived == 0) && (A1Y > 1)){
             A1stepY_A1Right();
             A2stepY_A1Right();
             // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
             // A1Right = (A1X > A2X); 
+            // printf ("bt1 A1R (%d: %d, %d) = A1XSatur=%d A2XSatur=%d\n", A1X, A2X, A1Y, A1XSatur, A2XSatur); get();
             hzfill();
         }
     }
 }
 void bresStepType2() {
-// #ifdef USE_PROFILER
-//             PROFILE_ENTER(ROUTINE_BRESRUNTYPE2);
-// #endif
+
     if (A1Right == 0) {
-       while ((A1arrived == 0) && (A2arrived == 0) && (A1Y > 1)) {
+        initSatur_A1Left ();
+        while ((A1arrived == 0) && (A2arrived == 0) && (A1Y > 1)) {
             A1stepY_A1Left();
             A2stepY_A1Left();
             // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
             // A1Right = (A1X > A2X); 
+            // printf ("bt2 A1L (%d: %d, %d) = A1XSatur=%d A2XSatur=%d\n", A1X, A2X, A1Y, A1XSatur, A2XSatur); get();
             hzfill();
         }
     } else {
+        initSatur_A1Right ();
         while ((A1arrived == 0) && (A2arrived == 0) && (A1Y > 1)){
             A1stepY_A1Right();
             A2stepY_A1Right();
             // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
             // A1Right = (A1X > A2X); 
+            // printf ("bt2 A1R (%d: %d, %d) = A1XSatur=%d A2XSatur=%d\n", A1X, A2X, A1Y, A1XSatur, A2XSatur); get();
             hzfill();
         }
     }
-// #ifdef USE_PROFILER
-//             PROFILE_LEAVE(ROUTINE_BRESRUNTYPE2);
-// #endif
+
 }
 
 void bresStepType3() {
-// #ifdef USE_PROFILER
-//             PROFILE_ENTER(ROUTINE_BRESRUNTYPE3);
-// #endif
+
         // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
 
     reachScreen ();
@@ -553,10 +590,8 @@ void bresStepType3() {
             hzfill();
         }
     }
-// #ifdef USE_PROFILER
-//             PROFILE_LEAVE(ROUTINE_BRESRUNTYPE3);
-// #endif
 }
+
 #ifdef USE_C_ISA1RIGHT1
 void isA1Right1 (){
     
@@ -579,29 +614,6 @@ void isA1Right1 (){
             A1Right = ((log2_tab[abs(mDeltaX2)] + log2_tab[mDeltaY1])/2) < ((log2_tab[abs(mDeltaX1)] + log2_tab[mDeltaY2])/2);
         }
     }
-    // if (((mDeltaX1 & 0x80) ^ (mDeltaX2 & 0x80)) == 0) {
-    //     A1Right = mDeltaY1*mDeltaX2 > mDeltaY2*mDeltaX1; // (DeltaY1/DeltaX1) > (DeltaY2/DeltaX2) ;
-    // }else {
-    //     A1Right = (mDeltaX1 < 0) ;
-    // }
-    
-    // A1Right = mDeltaY1*mDeltaX2 > mDeltaY2*mDeltaX1;
-
-
-//  if (DeltaX1 == 0) {
-//     A1Right = (DeltaX2 < 0);
-//  } else {
-//     if (DeltaX2 == 0){
-//         A1Right = (DeltaX1 > 0);
-//     } else {
-//         if (((DeltaX1 & 0x80) ^ (DeltaX2 & 0x80)) == 0) {
-//             A1Right = DeltaY1*DeltaX2 > DeltaY2*DeltaX1; // (DeltaY1/DeltaX1) > (DeltaY2/DeltaX2) ;
-//         }else {
-//             A1Right = (DeltaX1 > 0) ;
-//         }
-        
-//     }
-//  }
 }
 #endif // USE_C_ISA1RIGHT1
 
@@ -619,7 +631,7 @@ void fill8() {
     //printf ("fill [%d %d] [%d %d] [%d %d] %d %d\n", p1x, p1y, p2x, p2y, p3x, p3y, dist, char2disp); get();
     prepare_bresrun();
 
-    //printf ("Dep = [%d, %d], Arr1 = [%d, %d], Arr2= [%d, %d]\n", pDepX,pDepY, pArr1X, pArr1Y, pArr2X, pArr2Y);
+    // printf ("Dep = [%d, %d], Arr1 = [%d, %d], Arr2= [%d, %d]\n", pDepX,pDepY, pArr1X, pArr1Y, pArr2X, pArr2Y);get();
     if (pDepY != pArr1Y) {
         //a1 = bres_agent(pDep[0],pDep[1],pArr1[0],pArr1[1])
         //a2 = bres_agent(pDep[0],pDep[1],pArr2[0],pArr2[1])

@@ -86,7 +86,7 @@ A1stepY_A1Right_debug_moi_la:
 			sta _A1X
 
             ;; TOTEST if (A1X == SCREEN_WIDTH - 1){
-            cmp #SCREEN_WIDTH - 1
+            cmp #SCREEN_WIDTH-1
             bne A1stepY_A1Right_DntSwitch
             ;;     switch_A1XSatur();
                 lda _A1XSatur
@@ -536,7 +536,7 @@ A2stepY_A1Left_doloop:
 			sta _A2X
 
         ;; TOTEST:   if (A2X == SCREEN_WIDTH - 1){
-            cmp #SCREEN_WIDTH - 1
+            cmp #SCREEN_WIDTH-1
             bne A2stepY_A1Left_DntSwitch
         ;;        switch_A2XSatur();
                 lda _A2XSatur
