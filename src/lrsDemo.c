@@ -22,12 +22,13 @@
 #ifdef USE_REWORKED_BUFFERS
 
 extern char points3d[];
-extern char points3d[];
+extern char points2d[];
 
 extern signed char points3dX[];
 extern signed char points3dY[];
 extern signed char points3dZ[];
 
+extern unsigned char segments[];
 extern unsigned char segmentsPt1[];
 extern unsigned char segmentsPt2[];
 extern unsigned char segmentsChar[];
@@ -83,9 +84,23 @@ void quickTest(){
 
     CamRotZ = 125;
     CamRotX = 0;
-    glProjectArrays();
+    #ifdef INDIRECT_PROJECT
+        glProject (points2d, points3d, nbPoints, 0);   
+    #else
+        glProjectArrays();
+    #endif
     initScreenBuffers();
-    glDrawFaces();
+    #ifdef INDIRECT_DRAWFACES
+        glDrawFacesArray(points2d,faces, nbFaces);
+    #else
+        glDrawFaces();
+    #endif
+    #ifdef INDIRECT_DRAWSEGMENTS
+        glDrawSegmentsArray(points2d, segments, nbSegments);
+    #else
+        glDrawSegments();
+    #endif
+
     buffer2screen((void*)ADR_BASE_LORES_SCREEN);
     get();
 }
@@ -108,7 +123,7 @@ void lrsDemo() {
     lores0();
 #endif  // TARGET_ORIX
 
-    // quickTest();
+    quickTest();
 
     lrsIntro();
 

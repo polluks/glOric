@@ -78,30 +78,7 @@ _retrieveFaceData:
 	; clc : lda #<(_points2dL) : adc tmp0 : sta tmp0 : lda #>(_points2dL) : adc tmp0+1 : sta tmp0+1 :
 	; lda tmp0 : sta _d1 : lda tmp0+1 : sta _d1+1 :
 
-	ldy _idxPt1
-        // P1AH = points2aH[idxPt1];
-	lda _points2aH,y : sta _P1AH 
-        // P1AV = points2aV[idxPt1];
-	lda _points2aV,y : sta _P1AV 
-        // dmoy = points2dL[idxPt1]; //*((int*)(points2d + offPt1 + 2));
-	lda _points2dL,y : sta _dmoy: lda _points2dH,y : sta _dmoy+1
-
-	ldy _idxPt2
-        // P2AH = points2aH[idxPt2];
-	lda _points2aH,y : sta _P2AH 		
-        // P2AV = points2aV[idxPt2];
-	lda _points2aV,y : sta _P2AV 		
-        // dmoy += points2dL[idxPt2]; //*((int*)(points2d + offPt2 + 2));
-	clc: lda _points2dL,y : adc _dmoy: sta _dmoy : lda _points2dH,y : adc _dmoy+1 :sta _dmoy+1
-
-
-    ldy _idxPt3
-	    // P3AH = points2aH[idxPt3];
-	lda _points2aH,y : sta _P3AH	
-        // P3AV = points2aV[idxPt3];
-	lda _points2aV,y : sta _P3AV 		
-        // dmoy +=  points2dL[idxPt3]; //*((int*)(points2d + offPt3 + 2));
-	clc: lda _points2dL,y : adc _dmoy: sta _dmoy : lda _points2dH,y : adc _dmoy+1 :sta _dmoy+1
+	jsr loadFaceInfo
 
 	lda _dmoy+1
 	
@@ -692,3 +669,275 @@ guessIfFace2BeDrawn_done:
 .)
     rts
 #endif
+
+
+
+#ifdef INDIRECT_DRAWFACES
+
+.zero
+ptrFacesPt1 .dsb 2
+ptrFacesPt2 .dsb 2
+ptrFacesPt3 .dsb 2
+ptrFacesChar .dsb 2
+
+.text
+
+
+// void glDrawFacesArray(char points2d[], unsigned char faces[], unsigned char nbFaces);
+_glDrawFacesArray
+.(
+	;ldx #6 : lda #4 : jsr enter :
+
+	ldy #0 : lda (sp),y : sta ptrPoints2aH : 
+    iny : lda (sp),y : sta ptrPoints2aH+1 : 
+
+	ldy #2 : lda (sp),y : sta ptrFacesPt1 :
+    iny : lda (sp),y : sta ptrFacesPt1+1 :
+
+	ldy #4 : lda (sp),y : sta _nbFaces :
+
+
+	; ptrFacesPt2  = ptrFacesPt1  + NB_MAX_FACES
+	; ptrFacesPt3  = ptrFacesPt2  + NB_MAX_FACES
+	; ptrFacesChar = ptrFacesPt3 + NB_MAX_FACES
+
+    clc
+    lda ptrFacesPt1
+    adc #NB_MAX_FACES
+    sta ptrFacesPt2
+    lda ptrFacesPt1+1
+    adc #0
+    sta ptrFacesPt2+1
+
+    clc
+    lda ptrFacesPt2
+    adc #NB_MAX_FACES
+    sta ptrFacesPt3
+    lda ptrFacesPt2+1
+    adc #0
+    sta ptrFacesPt3+1
+
+    clc
+    lda ptrFacesPt3
+    adc #NB_MAX_FACES
+    sta ptrFacesChar
+    lda ptrFacesPt3+1
+    adc #0
+    sta ptrFacesChar+1
+
+
+    ;; ptrPoints2aV = ptrPoints2aH + NB_MAX_POINTS
+    ;; ptrPoints2dH = ptrPoints2aV + NB_MAX_POINTS
+    ;; ptrPoints2dL = ptrPoints2dH + NB_MAX_POINTS
+
+    clc
+    lda ptrPoints2aH
+    adc #NB_MAX_POINTS
+    sta ptrPoints2aV
+    lda ptrPoints2aH+1
+    adc #0
+    sta ptrPoints2aV+1
+    
+    clc
+    lda ptrPoints2aV
+    adc #NB_MAX_POINTS
+    sta ptrPoints2dH
+    lda ptrPoints2aV+1
+    adc #0
+    sta ptrPoints2dH+1
+    
+    clc
+    lda ptrPoints2dH
+    adc #NB_MAX_POINTS
+    sta ptrPoints2dL
+    lda ptrPoints2dH+1
+    adc #0
+    sta ptrPoints2dL+1
+
+
+	jsr _glIndirectDrawFaces
+
+	;jmp leave :
+.)
+	rts
+
+_glIndirectDrawFaces:
+.(
+
+#ifdef USE_PROFILER
+PROFILE_ENTER(ROUTINE_GLDRAWFACES);
+#endif // USE_PROFILER
+
+	// Save context
+	lda reg0 : pha 
+
+	ldy _nbFaces
+	jmp glIndirectDrawFaces_nextFace
+    // for (ii = 0; ii < nbFaces; ii++) {
+glIndirectDrawFaces_loop:
+
+    //     idxPt1 = facesPt1[ii] ;
+	lda (ptrFacesPt1), y
+	sta _idxPt1
+    //     idxPt2 = facesPt2[ii] ;
+	lda (ptrFacesPt2), y
+	sta _idxPt2
+    //     idxPt3 = facesPt3[ii] ;
+	lda (ptrFacesPt3), y
+	sta _idxPt3
+    //     ch2disp = facesChar[ii];
+	lda (ptrFacesChar), y
+	sta _ch2disp
+
+	sty reg0 
+
+    //     retrieveFaceData();
+	jsr _retrieveIndirectFaceData
+    //     sortPoints();
+	jsr _sortPoints
+    //     guessIfFace2BeDrawn();
+	jsr _guessIfFace2BeDrawn
+    //     if (isFace2BeDrawn) {
+	lda _isFace2BeDrawn
+	beq glIndirectDrawFaces_afterFill
+    //         fillFace();
+		jsr _fillFace
+    //     }
+glIndirectDrawFaces_afterFill:
+	ldy reg0
+
+glIndirectDrawFaces_nextFace:
+	dey 
+	bpl glIndirectDrawFaces_loop
+    // }
+
+glIndirectDrawFaces_done:
+	// Restore context
+	pla : sta reg0
+
+#ifdef USE_PROFILER
+PROFILE_LEAVE(ROUTINE_GLDRAWFACES);
+#endif // USE_PROFILER
+
+.)
+	rts
+
+#endif // INDIRECT_DRAWFACES
+
+
+#ifdef USE_ASM_RETRIEVEFACEDATA
+
+
+
+
+loadFaceInfo:
+.(
+
+
+	ldy _idxPt1
+        // P1AH = points2aH[idxPt1];
+	lda _points2aH,y : sta _P1AH 
+        // P1AV = points2aV[idxPt1];
+	lda _points2aV,y : sta _P1AV 
+        // dmoy = points2dL[idxPt1]; //*((int*)(points2d + offPt1 + 2));
+	lda _points2dL,y : sta _dmoy: lda _points2dH,y : sta _dmoy+1
+
+	ldy _idxPt2
+        // P2AH = points2aH[idxPt2];
+	lda _points2aH,y : sta _P2AH 		
+        // P2AV = points2aV[idxPt2];
+	lda _points2aV,y : sta _P2AV 		
+        // dmoy += points2dL[idxPt2]; //*((int*)(points2d + offPt2 + 2));
+	clc: lda _points2dL,y : adc _dmoy: sta _dmoy : lda _points2dH,y : adc _dmoy+1 :sta _dmoy+1
+
+
+    ldy _idxPt3
+	    // P3AH = points2aH[idxPt3];
+	lda _points2aH,y : sta _P3AH	
+        // P3AV = points2aV[idxPt3];
+	lda _points2aV,y : sta _P3AV 		
+        // dmoy +=  points2dL[idxPt3]; //*((int*)(points2d + offPt3 + 2));
+	clc: lda _points2dL,y : adc _dmoy: sta _dmoy : lda _points2dH,y : adc _dmoy+1 :sta _dmoy+1
+
+
+
+.)
+	rts
+
+
+#ifdef INDIRECT_DRAWFACES
+
+loadIndirectFaceInfo:
+.(
+	ldy _idxPt1
+        // P1AH = points2aH[idxPt1];
+	lda (ptrPoints2aH),y : sta _P1AH 
+        // P1AV = points2aV[idxPt1];
+	lda (ptrPoints2aV),y : sta _P1AV 
+        // dmoy = points2dL[idxPt1]; //*((int*)(points2d + offPt1 + 2));
+	lda (ptrPoints2dL),y : sta _dmoy: lda (ptrPoints2dH),y : sta _dmoy+1
+
+	ldy _idxPt2
+        // P2AH = points2aH[idxPt2];
+	lda (ptrPoints2aH),y : sta _P2AH 		
+        // P2AV = points2aV[idxPt2];
+	lda (ptrPoints2aV),y : sta _P2AV 		
+        // dmoy += points2dL[idxPt2]; //*((int*)(points2d + offPt2 + 2));
+	clc: lda (ptrPoints2dL),y : adc _dmoy: sta _dmoy : lda (ptrPoints2dH),y : adc _dmoy+1 :sta _dmoy+1
+
+
+    ldy _idxPt3
+	    // P3AH = points2aH[idxPt3];
+	lda (ptrPoints2aH),y : sta _P3AH	
+        // P3AV = points2aV[idxPt3];
+	lda (ptrPoints2aV),y : sta _P3AV 		
+        // dmoy +=  points2dL[idxPt3]; //*((int*)(points2d + offPt3 + 2));
+	clc: lda (ptrPoints2dL),y : adc _dmoy: sta _dmoy : lda (ptrPoints2dH),y : adc _dmoy+1 :sta _dmoy+1
+
+.)
+	rts
+
+_retrieveIndirectFaceData:
+.(
+
+	jsr loadIndirectFaceInfo
+
+	lda _dmoy+1
+	
+	beq retrieveIndirectFaceData_moynottoobig		// FIXME :: it should be possible to deal with case *(dmoy+1) = 1
+	lda #$FF
+	sta _distface
+	jmp retrieveIndirectFaceData_done
+
+retrieveIndirectFaceData_moynottoobig:
+
+        // dmoy = dmoy / 3;
+	lda _dmoy
+
+	;Divide by 3 found on http://forums.nesdev.com/viewtopic.php?f=2&t=11336
+	;18 bytes, 30 cycles
+	sta  tmp0
+	lsr
+	adc  #21
+	lsr
+	adc  tmp0
+	ror
+	lsr
+	adc  tmp0
+	ror
+	lsr
+	adc  tmp0
+	ror
+	lsr
+
+	sta _distface
+
+
+retrieveIndirectFaceData_done:	
+.)
+	rts
+
+
+#endif // INDIRECT_DRAWFACES
+#endif // USE_ASM_RETRIEVEFACEDATA
+

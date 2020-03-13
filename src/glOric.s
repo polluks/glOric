@@ -548,3 +548,125 @@ lrDrawLine_done:
 .)
 	rts
 #endif // USE_ASM_DRAWLINE
+
+
+#ifdef USE_REWORKED_BUFFERS
+#ifdef USE_ASM_ARRAYSPROJECT
+
+#ifdef INDIRECT_PROJECT
+.zero
+ptrPoints3dX .dsb 2
+ptrPoints3dY .dsb 2
+ptrPoints3dZ .dsb 2
+ptrPoints2aH .dsb 2
+ptrPoints2aV .dsb 2
+ptrPoints2dH .dsb 2
+ptrPoints2dL .dsb 2
+
+
+.text
+// void glProject (char *tabpoint2D, char *tabpoint3D, unsigned char nbPoints, unsigned char options);
+_glProject
+.(
+	ldx #6 : lda #4 : jsr enter :
+
+	ldy #0 : lda (ap),y : sta ptrPoints2aH : 
+    iny : lda (ap),y : sta ptrPoints2aH+1 : 
+
+	ldy #2 : lda (ap),y : sta ptrPoints3dX :
+    iny : lda (ap),y : sta ptrPoints3dX+1 :
+
+    ;; ptrPoints3dY = ptrPoints3dX + NB_MAX_POINTS
+    ;; ptrPoints3dZ = ptrPoints3dY + NB_MAX_POINTS
+    clc
+    lda ptrPoints3dX
+    adc #NB_MAX_POINTS
+    sta ptrPoints3dY
+    lda ptrPoints3dX+1
+    adc #0
+    sta ptrPoints3dY+1
+
+    clc
+    lda ptrPoints3dY
+    adc #NB_MAX_POINTS
+    sta ptrPoints3dZ
+    lda ptrPoints3dY+1
+    adc #0
+    sta ptrPoints3dZ+1
+
+    ;; ptrPoints2aV = ptrPoints2aH + NB_MAX_POINTS
+    ;; ptrPoints2dH = ptrPoints2aV + NB_MAX_POINTS
+    ;; ptrPoints2dL = ptrPoints2dH + NB_MAX_POINTS
+
+    clc
+    lda ptrPoints2aH
+    adc #NB_MAX_POINTS
+    sta ptrPoints2aV
+    lda ptrPoints2aH+1
+    adc #0
+    sta ptrPoints2aV+1
+    
+    clc
+    lda ptrPoints2aV
+    adc #NB_MAX_POINTS
+    sta ptrPoints2dH
+    lda ptrPoints2aV+1
+    adc #0
+    sta ptrPoints2dH+1
+    
+    clc
+    lda ptrPoints2dH
+    adc #NB_MAX_POINTS
+    sta ptrPoints2dL
+    lda ptrPoints2dH+1
+    adc #0
+    sta ptrPoints2dL+1
+
+	ldy #4 : lda (ap),y : sta tmp0 : sta _nbPoints ; iny : lda (ap),y : sta tmp0+1 :
+	ldy #6 : lda (ap),y : sta tmp0 : sta _projOptions ; iny : lda (ap),y : sta tmp0+1 :
+
+	jsr _glIndirectProjectArrays
+	jmp leave :
+.)
+
+_glIndirectProjectArrays:
+.(
+    // for (ii = 0; ii < nbPoints; ii++){
+	ldy		_nbPoints
+glIndirectProjectArrays_loop:
+	dey
+	bmi		glIndirectProjectArrays_done
+		//     x = points3dX[ii];
+		lda 	(ptrPoints3dX), y
+		sta		_PointX
+		//     y = points3dY[ii];
+		lda 	(ptrPoints3dY), y
+		sta		_PointY
+		//     z = points3dZ[ii];
+		lda 	(ptrPoints3dZ), y
+		sta		_PointZ
+
+    //     projectPoint(x, y, z, options, &ah, &av, &dist);
+		jsr 	_project_i8o8 :
+
+    //     points2aH[ii] = ah;
+		lda 	_ResX
+		sta		(ptrPoints2aH), y
+    //     points2aV[ii] = av;
+		lda 	_ResY
+		sta		(ptrPoints2aV), y
+    //     points2dH[ii] = (signed char)((dist & 0xFF00)>>8) && 0x00FF;
+		lda		_Norm+1
+		sta		(ptrPoints2dH), y
+    //     points2dL[ii] = (signed char) (dist & 0x00FF);
+		lda		_Norm
+		sta		(ptrPoints2dL), y
+
+    // }
+	jmp glIndirectProjectArrays_loop
+glIndirectProjectArrays_done:
+.)
+	rts
+#endif // INDIRECT_PROJECT
+#endif // USE_ASM_ARRAYSPROJECT
+#endif // USE_REWORKED_BUFFERS
