@@ -223,9 +223,9 @@ void prepare_bresrun() {
 #ifdef USE_C_REACHSCREEN
 void reachScreen(){
 #ifdef USE_COLOR
-        while ((A1Y >= SCREEN_HEIGHT-NB_LESS_LINES_4_COLOR)){ // FIXME :  && (A1arrived == 0)
+        while ((A1Y >= SCREEN_HEIGHT-NB_LESS_LINES_4_COLOR) && (A1arrived == 0)){ // FIXME :  && (A1arrived == 0)
 #else
-        while ((A1Y >= SCREEN_HEIGHT)){ // FIXME :  && (A1arrived == 0)
+        while ((A1Y >= SCREEN_HEIGHT)  && (A1arrived == 0)){ // FIXME : 
 #endif
             A1stepY();
             A2stepY();
@@ -238,15 +238,11 @@ void reachScreen(){
 void bresStepType1() {
         // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
         reachScreen()   ;
-        // A1Right = (A1X > A2X); 
-        hzfill();
         while ((A1arrived == 0) && (A1Y > 1)){
+            hzfill();
             A1stepY();
             A2stepY();
             // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
-            // A1Right = (A1X > A2X); 
-            hzfill();
-
         }
 
 }
@@ -277,15 +273,12 @@ void bresStepType3() {
         // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
         reachScreen()   ;
 
-        // A1Right = (A1X > A2X); 
-        hzfill();
-
         while ((A1arrived == 0) && (A2arrived == 0) && (A1Y > 1) ) {
+            hzfill();
             A1stepY();
             A2stepY();
             // printf ("hf (%d: %d, %d) = %d %d\n", A1X, A2X, A1Y, distface, ch2disp); get();
             // A1Right = (A1X > A2X); 
-            hzfill();
         }
 // #ifdef USE_PROFILER
 //             PROFILE_LEAVE(ROUTINE_BRESRUNTYPE3);

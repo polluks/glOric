@@ -1445,18 +1445,16 @@ fill8_done:
 
 
 
-
 #ifdef USE_ASM_BRESTYPE1
 ;; void bresStepType1()
 _bresStepType1:
 .(
 	ldy #0 : jsr _reachScreen :
-	ldy #0 : jsr _hzfill :
 	jmp bresStepType1_Lbresfill133 :
 bresStepType1_Lbresfill132
+	ldy #0 : jsr _hzfill :
 	ldy #0 : jsr _A1stepY :
 	ldy #0 : jsr _A2stepY :
-	ldy #0 : jsr _hzfill :
 bresStepType1_Lbresfill133
 	lda _A1arrived : sta tmp0 :
 	lda #0 : ldx tmp0 : stx tmp0 : .( : bpl skip : lda #$FF :skip : .)  : sta tmp0+1 :
@@ -1498,12 +1496,11 @@ bresStepType2_Lbresfill140
 _bresStepType3:
 .(
 	ldy #0 : jsr _reachScreen :
-	ldy #0 : jsr _hzfill :
 	jmp bresStepType3_Lbresfill142 :
 bresStepType3_Lbresfill141
+	ldy #0 : jsr _hzfill :
 	ldy #0 : jsr _A1stepY :
 	ldy #0 : jsr _A2stepY :
-	ldy #0 : jsr _hzfill :
 bresStepType3_Lbresfill142
 	lda _A1arrived : sta tmp0 :
 	lda #0 : ldx tmp0 : stx tmp0 : .( : bpl skip : lda #$FF :skip : .)  : sta tmp0+1 :
@@ -1519,7 +1516,6 @@ bresStepType3_Lbresfill145
 	rts
 #endif // USE_ASM_BRESTYPE3
 
-
 #ifdef USE_ASM_REACHSCREEN
 ;; void reachScreen()
 _reachScreen:
@@ -1529,10 +1525,19 @@ reachScreen_Lbresfill129
 	ldy #0 : jsr _A1stepY :
 	ldy #0 : jsr _A2stepY :
 reachScreen_Lbresfill130
-	lda _A1Y : sta tmp0 :
-	lda #0 : ldx tmp0 : stx tmp0 : .( : bpl skip : lda #$FF :skip : .)  : sta tmp0+1 :
-	lda tmp0 : cmp #<(22) : lda tmp0+1 : sbc #>(22) : bvc *+4 : eor #$80 : bmi *+5 : jmp reachScreen_Lbresfill129 
+    lda _A1arrived
+    bne reachScreen_done
+    lda _A1Y : sec:
+#ifdef USE_COLOR
+    sbc #SCREEN_HEIGHT-NB_LESS_LINES_4_COLOR
+#else
+    sbc #SCREEN_HEIGHT
+#endif
+    bvc *+4 : eor #$80 
 
+    bmi *+5 : jmp reachScreen_Lbresfill129
+
+reachScreen_done
 .)
 	rts
 #endif // USE_ASM_REACHSCREEN
